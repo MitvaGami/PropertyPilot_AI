@@ -1,0 +1,102 @@
+version: "3.1"
+nlu:
+- intent: greet
+  examples: |
+    - hi
+    - hello
+    - good morning
+    - good evening
+    - hey
+    - how are you?
+    - sup
+
+- intent: goodbye
+  examples: |
+    - bye
+    - goodbye
+    - see you later
+    - cya
+    - thanks bye
+
+- intent: affirm
+  examples: |
+    - yes
+    - indeed
+    - that's right
+    - correct
+    - yeah
+    - yup
+    - of course
+
+- intent: deny
+  examples: |
+    - no
+    - never
+    - I don't think so
+    - don't like that
+    - nope
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - are you an ai?
+
+- intent: ask_property_details
+  examples: |
+    - tell me about properties
+    - what properties do you have?
+    - list your properties
+    - show me available properties
+    - I want to know about a property
+    - give me details for [P001](property_id)
+    - details for [P005](property_id) please
+    - what about property [P007](property_id)?
+
+- intent: inform_location_bhk_budget
+  examples: |
+    - I'm looking for a property in [Koramangala](location)
+    - I need a [2BHK](bhk)
+    - my budget is [1.5 crore](price)
+    - I want something in [Indiranagar](location) for [120 lakhs](price)
+    - do you have [3BHK](bhk) in [Whitefield](location) around [1.8 crore](price)?
+    - I am looking for a [4 bhk](bhk)
+    - properties near [HSR Layout](location)
+    - my budget is [90 lakhs](price)
+    - can you find me a [2 bhk](bhk) in [Sarjapur](location)?
+    - I am interested in [villas](property_type)
+    - I am looking for an [apartment](property_type)
+    - I want something affordable around [50 lakhs](price)
+    - [3 bhk](bhk) in [Electronic City](location) for [1.1 crore](price)
+
+- intent: ask_amenities
+  examples: |
+    - do you have properties with a [pool](amenity)?
+    - looking for properties with [gym](amenity) access
+    - any listings with [parking](amenity)?
+    - properties with [garden](amenity)
+    - do you have flats with [security](amenity)?
+    - what properties have [power backup](amenity)?
+
+- intent: ask_contact_info
+  examples: |
+    - how can I contact someone?
+    - I want to talk to a human agent
+    - what's your contact number?
+    - can I get the sales team's number?
+    - who can I speak to?
+
+- intent: thank_you
+  examples: |
+    - thank you
+    - thanks
+    - much appreciated
+    - ok thanks
+
+- intent: out_of_scope
+  examples: |
+    - tell me a joke
+    - what's the weather like?
+    - tell me a story
+    - how old are you?
+    - sing me a song

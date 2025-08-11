@@ -1,0 +1,143 @@
+version: "3.1"
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - bot_challenge
+  - ask_property_details
+  - inform_location_bhk_budget
+  - ask_amenities
+  - ask_contact_info
+  - thank_you
+  - out_of_scope
+
+entities:
+  - location
+  - bhk
+  - price
+  - property_id
+  - amenity
+  - property_type
+  - name
+  - phone_number
+
+slots:
+  location:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: location
+  bhk:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: bhk
+  price:
+    type: float
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: price
+        intent: inform_location_bhk_budget # Only map price if the intent is relevant
+        role: budget # Optional, but good practice for clarity
+  property_id:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: property_id
+  amenity:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: amenity
+  property_type:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: property_type
+  name:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: name
+        intent: inform_contact_details # Assuming you'd have an intent for providing contact
+  phone_number:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+        entity: phone_number
+        intent: inform_contact_details
+
+
+forms:
+  property_form:
+    required_slots:
+      - location
+      - bhk
+      - price
+actions:
+  - action_search_properties
+  - validate_property_form
+responses:
+  utter_greet:
+    - text: "Hi there! How can I help you with your property search today?"
+    - text: "Hello! Welcome to our real estate assistant. What are you looking for?"
+
+  utter_goodbye:
+    - text: "Goodbye! Feel free to reach out if you need anything else."
+    - text: "See you later! Have a great day."
+
+  utter_iamabot:
+    - text: "I am a bot, an AI assistant built to help you with property inquiries."
+
+  utter_ask_location:
+    - text: "Which location are you interested in?"
+    - text: "Could you please tell me the preferred locality?"
+
+  utter_ask_bhk:
+    - text: "How many bedrooms (BHK) are you looking for?"
+    - text: "What BHK configuration do you prefer?"
+
+  utter_ask_price:
+    - text: "What is your budget range (in Lakhs or Crores)?"
+    - text: "Could you tell me your approximate budget?"
+
+  utter_ask_property_form_location:
+    - text: "Which area are you interested in?"
+
+  utter_ask_property_form_bhk:
+    - text: "And how many bedrooms (BHK)?"
+
+  utter_ask_property_form_price:
+    - text: "What's your budget for this property?"
+
+  utter_no_properties_found:
+    - text: "I couldn't find any properties matching your criteria. Would you like to try different filters?"
+
+  utter_ask_further_assistance:
+    - text: "Is there anything else I can help you with regarding properties?"
+    - text: "Do you have any other questions about properties?"
+
+  utter_contact_human_agent:
+    - text: "Sure, I can connect you to a human agent. Please provide your name and phone number so they can reach out."
+    - text: "For a direct conversation, please share your name and contact number, and our sales team will get in touch."
+
+  utter_unclear:
+    - text: "I'm not sure I understood. Can you rephrase that?"
+    - text: "Sorry, I didn't get that. Could you please clarify?"
+
+  utter_out_of_scope:
+    - text: "I'm sorry, I can only assist with real estate inquiries. Is there anything property-related I can help you with?"
+    - text: "My apologies, I am designed to answer questions about properties. How can I assist you with your property search?"
+
+  utter_anything_else:
+    - text: "Is there anything else I can help you with today?"
+    - text: "Do you need help with anything else?"

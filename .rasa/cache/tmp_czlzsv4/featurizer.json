@@ -1,0 +1,85 @@
+{
+  "type": "IntentMaxHistoryTrackerFeaturizer",
+  "state_featurizer": {
+    "action_texts": [],
+    "entity_tag_specs": [],
+    "feature_states": {
+      "intent": {
+        "affirm": 0,
+        "ask_amenities": 1,
+        "ask_contact_info": 2,
+        "ask_property_details": 3,
+        "back": 4,
+        "bot_challenge": 5,
+        "deny": 6,
+        "goodbye": 7,
+        "greet": 8,
+        "inform_location_bhk_budget": 9,
+        "nlu_fallback": 10,
+        "out_of_scope": 11,
+        "restart": 12,
+        "session_start": 13,
+        "thank_you": 14
+      },
+      "action_name": {
+        "action_listen": 0,
+        "action_restart": 1,
+        "action_session_start": 2,
+        "action_default_fallback": 3,
+        "action_deactivate_loop": 4,
+        "action_revert_fallback_events": 5,
+        "action_default_ask_affirmation": 6,
+        "action_default_ask_rephrase": 7,
+        "action_two_stage_fallback": 8,
+        "action_unlikely_intent": 9,
+        "action_back": 10,
+        "...": 11,
+        "action_extract_slots": 12,
+        "action_search_properties": 13,
+        "validate_property_form": 14,
+        "utter_anything_else": 15,
+        "utter_ask_bhk": 16,
+        "utter_ask_further_assistance": 17,
+        "utter_ask_location": 18,
+        "utter_ask_price": 19,
+        "utter_ask_property_form_bhk": 20,
+        "utter_ask_property_form_location": 21,
+        "utter_ask_property_form_price": 22,
+        "utter_contact_human_agent": 23,
+        "utter_goodbye": 24,
+        "utter_greet": 25,
+        "utter_iamabot": 26,
+        "utter_no_properties_found": 27,
+        "utter_out_of_scope": 28,
+        "utter_unclear": 29,
+        "property_form": 30
+      },
+      "entities": {
+        "amenity": 0,
+        "bhk": 1,
+        "location": 2,
+        "name": 3,
+        "phone_number": 4,
+        "price": 5,
+        "property_id": 6,
+        "property_type": 7
+      },
+      "slots": {
+        "location_0": 0,
+        "bhk_0": 1,
+        "price_0": 2,
+        "price_1": 3,
+        "property_id_0": 4,
+        "amenity_0": 5,
+        "property_type_0": 6,
+        "name_0": 7,
+        "phone_number_0": 8
+      },
+      "active_loop": {
+        "property_form": 0
+      }
+    }
+  },
+  "remove_duplicates": true,
+  "max_history": 5
+}

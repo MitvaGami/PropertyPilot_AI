@@ -1,0 +1,9 @@
+property_id,location,bhk,price_lacs,amenities,status,contact_person,contact_number
+P001,Koramangala,3,150,"Gym, Pool, Parking, Balcony",Available,Anil Kumar,9876543210
+P002,Indiranagar,2,120,"Park View, Security, Lift",Available,Anjali Sharma,9876543211
+P003,HSR Layout,4,200,"Terrace Garden, Power Backup, AC",Sold,Rahul Reddy,9876543212
+P004,Marathahalli,1,45,"Lift, Security, Kids Play Area",Available,Priya Singh,9876543213
+P005,Whitefield,3,180,"Swimming Pool, Club House",Available,Vikram Das,9876543214
+P006,Sarjapur,2,95,"Gym, Community Hall",Available,Sneha Gupta,9876543215
+P007,Electronic City,3,110,"Playground, Security",Available,Arjun Nair,9876543216
+P008,Basavanagudi,4,250,"Heritage Property, Garden",Available,Ravi Verma,9876543217

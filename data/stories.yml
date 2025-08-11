@@ -1,0 +1,72 @@
+version: "3.1"
+stories:
+- story: happy path greet and goodbye
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: goodbye
+  - action: utter_goodbye
+
+- story: bot challenge
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- story: direct property search by ID
+  steps:
+  - intent: ask_property_details
+    entities:
+    - property_id: "P001"
+  - action: action_search_properties
+  - action: utter_ask_further_assistance
+
+- story: property search with initial filters (location, bhk, budget)
+  steps:
+  - intent: inform_location_bhk_budget
+    entities:
+    - location: "Koramangala"
+    - bhk: "3BHK"
+    - price: "1.5 crore"
+  - action: action_search_properties
+  - action: utter_ask_further_assistance
+
+- story: interactive property search (form)
+  steps:
+  - intent: ask_property_details
+  - action: property_form
+  - active_loop: property_form
+  - slot_was_set:
+    - location: Koramangala
+  - slot_was_set:
+    - bhk: 3BHK
+  - slot_was_set:
+    - price: 15000000
+  - active_loop: null
+  - action: action_search_properties
+  - action: utter_ask_further_assistance
+
+- story: property search with amenity
+  steps:
+  - intent: ask_amenities
+    entities:
+    - amenity: "pool"
+  - action: action_search_properties
+  - action: utter_ask_further_assistance
+
+- story: inquire and connect to human agent
+  steps:
+  - intent: ask_contact_info
+  - action: utter_contact_human_agent
+  - intent: affirm # User might say "yes" to provide info
+  # Here, you might trigger a form to collect name/phone or just assume they will provide in next turn
+  - action: utter_anything_else # Or an action to log the request
+
+- story: general thank you
+  steps:
+  - intent: thank_you
+  - action: utter_anything_else
+
+- story: out of scope conversation
+  steps:
+  - intent: out_of_scope
+  - action: utter_out_of_scope

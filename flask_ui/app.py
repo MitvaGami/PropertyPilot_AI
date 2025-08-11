@@ -5,7 +5,7 @@ import json
 app = Flask(__name__)
 
 # URL for your Rasa server's REST endpoint
-RASA_API_URL = "http://localhost:5005/webhooks/rest/webhook"
+RASA_API_URL = os.getenv("RASA_API_URL", "http://localhost:5005/webhooks/rest/webhook")
 
 @app.route("/")
 def home():

@@ -27,7 +27,11 @@ This project demonstrates a practical application of AI, built entirely using ro
 
 ## 📊 System Architecture & Data Flow
 
-The Real Estate AI Assistant operates on a clear, modular architecture, orchestrating information flow through distinct, interconnected components. This design ensures robust handling of user queries, intelligent data processing, and efficient response generation.
+Here's a high-level overview of the data flow within the Real Estate AI Assistant:
+
+![Real Estate AI Assistant Data Flow](real_estate_ai_data_flow.png)
+
+The Real Estate AI Assistant operates on a clear, modular architecture...
 
 ### 1. Architectural Components
 

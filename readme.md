@@ -271,12 +271,3 @@ This project lays a robust groundwork. Potential avenues for further development
 
 This project is open-source and available under the MIT License.
 
-## 📧 Contact
-
-For any inquiries, feedback, or collaborations, please feel free to reach out:
-
-[Your Name]
-[Your Email Address]
-[Your LinkedIn Profile URL (Optional)]
-
----

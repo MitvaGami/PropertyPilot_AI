@@ -25,43 +25,52 @@ This project demonstrates a practical application of AI, built entirely using ro
 *   **Basic Price Normalization:** Logic to interpret common Indian real estate budget formats (e.g., "1.5 crore", "90 lakhs").
 *   **Out-of-Scope Management:** Gracefully redirects queries outside its domain, maintaining a professional and helpful persona.
 
-## 📊 Data Flow & Architecture
+## 📊 System Architecture & Data Flow
 
-The AI assistant operates on a modular architecture, ensuring clear separation of concerns and efficient processing of user interactions:
+The Real Estate AI Assistant operates on a clear, modular architecture, orchestrating information flow through distinct, interconnected components. This design ensures robust handling of user queries, intelligent data processing, and efficient response generation.
 
-1.  **User Interaction (Flask UI / Rasa Shell):**
-    *   The user initiates a conversation through the Flask web interface or directly via the Rasa command-line shell.
-    *   User messages are captured and sent to the Rasa Core/NLU server.
+### 1. Architectural Components
 
-2.  **Rasa NLU (Natural Language Understanding):**
-    *   The core of understanding. Rasa NLU takes the raw user message and transforms it into structured data:
-        *   **Intent Prediction:** Determines the user's goal (e.g., `ask_property_details`).
-        *   **Entity Extraction:** Identifies and extracts key pieces of information (e.g., `property_id: "P001"`, `location: "Koramangala"`).
-    *   This structured information is added to the `Tracker`, which maintains the conversation's state.
+*   **User Interface (Flask Web UI / Rasa Shell):** The primary interaction point for the end-user.
+*   **Rasa Core/NLU API:** The central AI pipeline responsible for understanding user input and managing dialogue flow.
+*   **Rasa Action Server:** Executes custom Python code for complex business logic, external integrations, and database interactions.
+*   **SQLite Database (`properties.db`):** Stores all property listing data.
 
-3.  **Rasa Core (Dialogue Management):**
-    *   The "brain" of the assistant. Based on the current `Tracker` state (history of intents, entities, and filled slots) and its trained dialogue policies (`MemoizationPolicy`, `RulePolicy`, `TEDPolicy`, `UnexpecTEDIntentPolicy`), Rasa Core decides the most appropriate next action.
-    *   This action could be:
-        *   **Uttering a predefined response** (e.g., `utter_greet`).
-        *   **Activating a Form** (e.g., `property_form`) to collect multiple pieces of information sequentially.
-        *   **Triggering a Custom Action** for complex logic or external integrations.
+### 2. The AI Pipeline Explained (Within Rasa Core/NLU)
 
-4.  **Rasa Action Server:**
-    *   When a `custom action` is chosen by Rasa Core (e.g., `action_search_properties`, `validate_property_form`), Rasa Core sends an HTTP request to the Action Server (running independently on `http://localhost:5055`).
-    *   The Action Server executes the corresponding Python code (`actions/actions.py`). This is where the core business logic resides:
-        *   **Database Querying:** Connects to the SQLite database (`db/properties.db`).
-        *   **Data Processing:** Filters, processes, and formats retrieved property data.
-        *   **Validation:** Custom logic to validate user inputs (e.g., ensuring BHK is a valid number, parsing prices).
-        *   **Response Formulation:** Constructs the specific text response to send back to the user.
+At the heart of the assistant lies Rasa's powerful AI pipeline, which transforms raw user input into actionable intelligence:
 
-5.  **SQLite Database (`db/properties.db`):**
-    *   A lightweight, file-based database storing all property listings, including details like `property_id`, `location`, `bhk`, `price_lacs`, `amenities`, `status`, and `contact_info`.
-    *   The Action Server interacts with this database to fetch relevant property data.
+*   **Natural Language Understanding (NLU):**
+    *   **Input:** Raw user text (e.g., "Find me a 2BHK in Koramangala").
+    *   **Process:** User messages are first tokenized and featurized. Then, components like the `DIETClassifier` (Dual Intent and Entity Transformer) analyze the processed input.
+    *   **Output:** A predicted `Intent` (e.g., `inform_location_bhk_budget`) and extracted `Entities` (e.g., `location: "Koramangala"`, `bhk: "2BHK"`). This structured information is immediately stored in Rasa's internal `Tracker`.
 
-6.  **Response Delivery:**
-    *   The Action Server sends its formulated response back to Rasa Core.
-    *   Rasa Core then relays this response to the client (Flask UI or Rasa Shell), which displays it to the user.
-    *   The process then loops, awaiting the user's next input.
+*   **Dialogue Management (Core):**
+    *   **Input:** The current state of the `Tracker`, including the conversation history, previously predicted intents, extracted entities, and filled `slots` (which act as the bot's memory).
+    *   **Process:** Rasa's `Policies` (e.g., `TEDPolicy` for sophisticated dialogue, `RulePolicy` for direct rules, `MemoizationPolicy` for exact matches) analyze the entire tracker state to determine the `Next Best Action`. This stage also manages `Forms` (like `property_form`) to guide multi-turn conversations for collecting specific user information.
+    *   **Output:** A decision on what the bot should do next: `utter` a predefined response, activate/deactivate a `form`, or execute a `custom action`.
+
+*   **Action Execution:**
+    *   **Input:** The decision from Dialogue Management to perform a specific action (e.g., `action_search_properties`).
+    *   **Process:** If the action is a `custom action`, Rasa Core sends an HTTP request containing all relevant conversation data (including slot values) to the Rasa Action Server.
+    *   **Output:** The result of the action (e.g., a message containing formatted property data, or a validation message during a form).
+
+### 3. End-to-End Data Flow (with Arrows)
+
+The following sequence illustrates how data flows through the system, enabling the AI assistant to provide intelligent responses. Each step represents a distinct operation and data transfer.
+
+| Step | Component / Source            | Action / Process                                     | Component / Destination               | Output / Result                                           |
+| :--- | :---------------------------- | :--------------------------------------------------- | :------------------------------------ | :-------------------------------------------------------- |
+| **1**| **User**                      | Types Message                                        | &rarr; **Flask Web UI / Rasa Shell**  | User Input Text                                           |
+| **2**| **Flask Web UI / Rasa Shell** | Sends User Input via API                             | &rarr; **Rasa Core/NLU API** (`localhost:5005`) | HTTP Request with User Message                            |
+| **3**| **Rasa Core/NLU API**         | **AI Pipeline: NLU** (Intent & Entity Extraction)    | &rarr; Internal `Tracker`             | Predicted Intent & Extracted Entities                     |
+| **4**| **Rasa Core/NLU API**         | **AI Pipeline: Dialogue Management** (Policy decision)| &rarr; (Internal logic)               | Next Best Action (e.g., `action_search_properties`)       |
+| **5**| **Rasa Core/NLU API**         | Invokes Custom Action (if needed)                    | &rarr; **Rasa Action Server** (`localhost:5055`) | HTTP Request to execute action with `slots` data          |
+| **6**| **Rasa Action Server**        | Executes Python Logic (`actions.py`)                 | &rarr; **SQLite Database** (`properties.db`) | SQL Query (e.g., `SELECT * FROM properties...`)           |
+| **7**| **SQLite Database**           | Retrieves Data                                       | &rarr; **Rasa Action Server**         | Matching Property Records                                 |
+| **8**| **Rasa Action Server**        | Processes & Formats Data                             | &rarr; **Rasa Core/NLU API**          | Formatted Text Response                                   |
+| **9**| **Rasa Core/NLU API**         | Delivers Bot Response                                | &rarr; **Flask Web UI / Rasa Shell**  | HTTP Response with Bot's Message                          |
+| **10**| **Flask Web UI / Rasa Shell** | Displays Bot Response                                | &rarr; **User**                       | Answer displayed in chat interface                        |
 
 ## 🛠️ Tech Stack & Professional Relevance
 
@@ -74,9 +83,9 @@ This project demonstrates proficiency across a diverse and highly in-demand set 
 *   **SQLite:**
     *   **Relevance:** A lightweight, self-contained, serverless relational database. Demonstrates fundamental database management skills, including SQL querying, data modeling, and local data persistence – essential for almost any software application. Its simplicity makes it perfect for rapid prototyping and deployment.
 *   **Pandas:**
-    *   **Relevance:** The go-to library for data manipulation and analysis in Python. Used for efficient data loading and processing from CSV to SQLite. Showcases skills in data wrangling, a crucial step in preparing data for AI models.
+    *   **Relevance:** The go-to library for data manipulation and analysis in Python. Used here for efficient data loading and processing from CSV to SQLite. Showcases skills in data wrangling, a crucial step in preparing data for AI models.
 *   **Flask:**
-    *   **Relevance:** A minimalist yet powerful Python micro-web framework. Employed to create a simple, interactive web-based chat interface. This demonstrates basic full-stack development capabilities, API integration, and front-end interaction, highlighting the ability to deliver a user-facing application.
+    *   **Relevance:** A minimalist yet powerful Python micro-web framework. Employed to create a simple, interactive web-based chat interface. This demonstrates basic full-stack development capabilities, API integration (connecting to the Rasa server), and front-end interaction, highlighting the ability to deliver a user-facing application.
 *   **Git & GitHub:**
     *   **Relevance:** Indispensable tools for modern software development. Their usage demonstrates adherence to professional version control best practices, collaborative development readiness, and effective project documentation and sharing.
 
@@ -107,8 +116,8 @@ Follow these steps to set up and launch the Real Estate AI Assistant locally.
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/your_github_username/real_estate_ai_agent.git # Replace with your repo URL
-    cd real_estate_ai_agent
+    git clone https://github.com/MitvaGami/PropertyPilot_AI.git # Replace with your repo URL
+    cd PropertyPilot_AI
     ```
 
 2.  **Create & Activate Virtual Environment:**
@@ -120,7 +129,7 @@ Follow these steps to set up and launch the Real Estate AI Assistant locally.
 
 3.  **Install Project Dependencies:**
     ```bash
-    pip install rasa "rasa[full]" "SQLAlchemy==1.4.46" pandas Flask
+    pip install rasa "rasa[full]" "SQLAlchemy==1.4.46" pandas Flask gunicorn
     ```
 
 4.  **Initialize Rasa Project Structure:**
@@ -148,54 +157,88 @@ Follow these steps to set up and launch the Real Estate AI Assistant locally.
         *   `data/rules.yml`
         *   `domain.yml`
         *   `config.yml`
-        *   `endpoints.yml`
+        *   `endpoints.yml` (Remember to update `action_endpoint` to `http://rasa-action-server:5055/webhook` for deployment!)
         *   `actions/actions.py`
+    *   **Update `flask_ui/app.py`:** Add the `os.getenv` for `RASA_API_URL` and `host="0.0.0.0"` for the Flask run command, as shown in previous instructions.
+    *   **Ensure `requirements.txt` is up-to-date** (`pip freeze > requirements.txt`).
 
 7.  **Train the Rasa Model:**
     *   From the project root directory in your active virtual environment terminal:
         ```bash
         rasa train
         ```
-    *   This process compiles your NLU, dialogue, and response data into a single model.
+    *   This might take a few minutes. You'll see messages indicating training progress and successful model saving.
 
-### Launching the AI Assistant (Simultaneous Server Execution)
+### Launching the AI Assistant (Simultaneous Server Execution - Local)
 
-To run the complete system, you need **three separate terminal instances** concurrently. Each terminal must have the virtual environment activated.
+To run the complete system locally (including the web UI), you need to have three separate terminal windows/processes running concurrently. Each terminal must have the virtual environment activated.
 
-1.  **Terminal 1: Start Rasa Action Server**
+1.  **Terminal 1: Rasa Action Server**
     ```bash
     rasa run actions
     ```
-    *   This server executes your custom Python logic defined in `actions/actions.py`.
     *   Expected output: "Action endpoint is up and running on `http://0.0.0.0:5055`"
 
-2.  **Terminal 2: Start Rasa Core/NLU Server (API Mode)**
+2.  **Terminal 2: Rasa Core/NLU Server (API Mode)**
     ```bash
     rasa run --enable-api --cors "*"
     ```
-    *   This server handles the core AI logic (NLU & Dialogue Management) and exposes a REST API for clients (like your Flask UI).
-    *   `--enable-api` exposes the API. `--cors "*"` allows your Flask app (on a different port) to communicate.
     *   Expected output: "The Rasa server is listening on `http://0.0.0.0:5005`"
 
-3.  **Terminal 3: Start Flask Web UI**
-    *   Navigate to the Flask application directory:
-        ```bash
-        cd flask_ui
-        ```
-    *   Ensure `flask_ui/templates` folder exists and `flask_ui/app.py` and `flask_ui/templates/index.html` contain the provided code.
-    *   Launch the Flask web server:
-        ```bash
-        python app.py
-        ```
+3.  **Terminal 3: Flask Web UI**
+    ```bash
+    cd flask_ui
+    python app.py
+    ```
     *   Expected output: "* Running on `http://127.0.0.1:5000`"
 
 ### Interact with Your AI Assistant!
 
-Once all three terminals are running without errors, open your web browser and navigate to:
+Once all three terminals are running without errors:
 
-**`http://127.0.0.1:5000`**
+1.  Open your web browser.
+2.  Navigate to: `http://127.0.0.1:5000`
+3.  You will see the chat interface. Start interacting with your Real Estate AI Agent!
 
-You will now see the chat interface ready for interaction!
+## ☁️ Deployment (Render - Free Tier)
+
+For a live, shareable version of your AI assistant, Render offers a suitable free tier. This involves deploying your Rasa Core, Rasa Action Server, and Flask UI as separate web services.
+
+**Key Pre-Deployment Steps:**
+
+1.  **Generate `requirements.txt`:** Ensure you have an up-to-date `requirements.txt` in your project root (`pip freeze > requirements.txt`).
+2.  **Update `endpoints.yml`:** Set `action_endpoint: url: "http://rasa-action-server:5055/webhook"` (assuming `rasa-action-server` is your Render service name for the actions).
+3.  **Update `flask_ui/app.py`:** Use `os.getenv("RASA_API_URL", "http://localhost:5005/webhooks/rest/webhook")` for the Rasa API URL and bind Flask to `0.0.0.0:$PORT` for Render compatibility.
+4.  **Commit and Push all changes to your GitHub repository.**
+
+**Render Deployment Steps:**
+
+1.  **Create Render Account & Connect GitHub:** Sign up on [render.com](https://render.com/) and connect your GitHub repository (`PropertyPilot_AI`).
+
+2.  **Deploy `rasa-core-api` Web Service:**
+    *   **Name:** `rasa-core-api`
+    *   **Build Command:** `pip install -r requirements.txt && python db/create_db.py && rasa train`
+        *   *This command installs dependencies, creates the SQLite DB, and critically, trains the Rasa model directly on Render.*
+    *   **Start Command:** `rasa run --enable-api --cors "*" --port $PORT`
+    *   **Instance Type:** `Free`
+
+3.  **Deploy `rasa-action-server` Web Service:**
+    *   **Name:** `rasa-action-server` (must match `endpoints.yml`)
+    *   **Build Command:** `pip install -r requirements.txt`
+    *   **Start Command:** `rasa run actions --port $PORT`
+    *   **Instance Type:** `Free`
+
+4.  **Deploy `flask-web-ui` Web Service:**
+    *   **Name:** `flask-web-ui`
+    *   **Build Command:** `pip install -r requirements.txt`
+    *   **Start Command:** `gunicorn --worker-class gevent -w 1 flask_ui.app:app -b 0.0.0.0:$PORT`
+    *   **Environment Variables:**
+        *   **Key:** `RASA_API_URL`
+        *   **Value:** `https://[YOUR_RASA_CORE_API_PUBLIC_URL_FROM_RENDER]/webhooks/rest/webhook`
+            *   *(Find the exact public URL for your `rasa-core-api` service on its Render dashboard and substitute it here.)*
+    *   **Instance Type:** `Free`
+
+**Verification:** Once all three Render services are "Live" (check their individual logs for errors), navigate to the public URL of your `flask-web-ui` service. Your AI assistant will be live and accessible globally!
 
 ## 🧪 Testing the Agent
 
@@ -224,6 +267,12 @@ This project lays a robust groundwork. Potential avenues for further development
 
 This project is open-source and available under the MIT License.
 
+## 📧 Contact
 
+For any inquiries, feedback, or collaborations, please feel free to reach out:
+
+[Your Name]
+[Your Email Address]
+[Your LinkedIn Profile URL (Optional)]
 
 ---
